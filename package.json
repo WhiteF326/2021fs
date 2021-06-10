@@ -1,0 +1,20 @@
+{
+  "name": "2021fs",
+  "version": "1.0.0",
+  "main": "MazeMaker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WhiteF326/2021fs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WhiteF326/2021fs/issues"
+  },
+  "homepage": "https://github.com/WhiteF326/2021fs#readme",
+  "description": ""
+}
