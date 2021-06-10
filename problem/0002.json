@@ -1,10 +1,10 @@
 {
-  "name": "Hello World",
+  "name": "数値型",
   "level": 1,
   "timelimit": 2.000,
   "memorylimit": 512,
   "JP": {
-    "text": "Hello World!と出力してください。",
+    "text": "42416 × 123の結果を出力してください。",
     "condition": "",
     "input": "",
     "output": ""
