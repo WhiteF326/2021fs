@@ -1,22 +1,11 @@
-const http = require("http");
+// server.js
 
-const hostname="localhost";
-const port = 810;
+import { Server } from "https://js.sabae.cc/Server.js";
 
-const server = http.createServer((req, res) => {
-  res.writeHead(200, {"Content-Type" : "text/plain"});
-  switch(req.url){
-    case "/submit":
-      msg = "submit";
-      break;
-    default:
-      msg = "res";
-      break;
+class body extends Server {
+  async api(path, prm) {
+    return "test";
   }
-  res.write(msg);
-  res.end();
-});
+}
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+new body(810);
