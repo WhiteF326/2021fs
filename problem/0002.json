@@ -3,11 +3,9 @@
   "level": 1,
   "timelimit": 2.000,
   "memorylimit": 512,
-  "JP": {
-    "text": "42416 × 123の結果を出力してください。",
-    "condition": "",
-    "input": "",
-    "output": ""
-  },
+  "text": "42416 × 123の結果を出力してください。",
+  "condition": "なし",
+  "input": "なし",
+  "output": "一行に結果を出力し、改行してください。",
   "codeJudge": false
 }

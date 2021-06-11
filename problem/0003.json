@@ -1,10 +1,10 @@
 {
-  "name": "Hello World",
+  "name": "標準入力",
   "level": 1,
   "timelimit": 2.000,
   "memorylimit": 512,
   "JP": {
-    "text": "Hello World!と出力してください。",
+    "text": "",
     "condition": "",
     "input": "",
     "output": ""

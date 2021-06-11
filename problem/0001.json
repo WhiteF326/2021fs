@@ -3,11 +3,10 @@
   "level": 1,
   "timelimit": 2.000,
   "memorylimit": 512,
-  "JP": {
-    "text": "Hello World!と出力してください。",
-    "condition": "",
-    "input": "",
-    "output": ""
-  },
+  "text": "Hello World!と出力してください。",
+  "condition": "なし",
+  "input": "なし",
+  "output": "一行にHello World!と出力し、改行してください。",
+  "startcode": [],
   "codeJudge": false
 }

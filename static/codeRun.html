@@ -1,13 +1,128 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/sakura.css" type="text/css">
   <title>Document</title>
-  <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
 </head>
+<style>
+  .problemText {
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 5px;
+  }
+</style>
+
+<script type="module">
+  import { fetchJSON } from "https://js.sabae.cc/fetchJSON.js";
+
+  window.onload = async function () {
+    // 問題一覧のリストボックスを作成
+    const problemTextList = [];
+    const problemList = await fetchJSON("api/problem/all", {});
+    for (let i = 0; i < problemList.length; i++) {
+      const problemText = await fetchJSON("api/problem/search", { name: problemList[i].name });
+      problemTextList.push(problemText);
+      const problemSelection = document.createElement("option");
+      problemSelection.innerText = problemText.name;
+      problemSelection.id = "problemOption" + i;
+      document.getElementById("problemList").appendChild(problemSelection);
+    }
+    // ローカルから問題の選択状況を取得
+    if (localStorage.getItem("problemSelection")) {
+      document.getElementById("problemOption" + localStorage.getItem("problemSelection")).selected = true;
+    }
+
+    // 言語一覧のリストボックスを作成
+    const languagesListText = await fetchJSON("api/language/list", {});
+    const languagesList = JSON.parse(languagesListText);
+    const languagesBox = document.getElementById("languageList");
+    languagesList.forEach(eachLanguage => {
+      const eachLanguageOption = document.createElement("option");
+      eachLanguageOption.value = eachLanguage.id;
+      eachLanguageOption.innerText = eachLanguage.name;
+      languagesBox.appendChild(eachLanguageOption);
+    });
+    // 言語の変更時に変更内容をローカルに保存する
+    languagesBox.addEventListener("change", () => {
+      localStorage.setItem("selectedLanguage", languagesBox.value);
+    });
+    // ローカルから言語の選択状況を取得
+    if (localStorage.getItem("selectedLanguage") !== null) {
+      const languagesListChildNodes = document.getElementById("languageList").childNodes;
+      for (let i = 0; i < languagesListChildNodes.length; i++) {
+        if (languagesListChildNodes[i].value == localStorage.getItem("selectedLanguage")) {
+          languagesListChildNodes[i].selected = true;
+        }
+      }
+    }
+
+    // 問題の読み込み
+    document.getElementById("changeProblem").addEventListener("click", () => {
+      // change texts
+      const problemNumber = document.getElementById("problemList").selectedIndex;
+      const problemState = document.getElementById("problemState");
+      while (problemState.firstChild) {
+        problemState.removeChild(problemState.firstChild);
+      }
+      // 問題タイトル
+      const problemTitle = document.createElement("h3");
+      problemTitle.appendChild(document.createTextNode(problemTextList[problemNumber].name));
+      problemState.appendChild(problemTitle);
+      // 問題文
+      const problemBodyIndex = document.createElement("h6");
+      problemBodyIndex.appendChild(document.createTextNode("問題文"));
+      problemState.appendChild(problemBodyIndex);
+      const problemBody = document.createElement("span");
+      problemBody.appendChild(document.createTextNode(problemTextList[problemNumber].text));
+      problemState.appendChild(problemBody);
+      // 問題制約
+      const problemLimitIndex = document.createElement("h6");
+      problemLimitIndex.appendChild(document.createTextNode("制約"));
+      problemState.appendChild(problemLimitIndex);
+      const problemLimit = document.createElement("span");
+      problemLimit.appendChild(document.createTextNode(problemTextList[problemNumber].condition));
+      problemState.appendChild(problemLimit);
+      // 入力形式
+      const problemInputIndex = document.createElement("h6");
+      problemInputIndex.appendChild(document.createTextNode("入力"));
+      problemState.appendChild(problemInputIndex);
+      const problemInput = document.createElement("span");
+      problemInput.appendChild(document.createTextNode(problemTextList[problemNumber].input));
+      problemState.appendChild(problemInput);
+      // 出力形式
+      const problemOutputIndex = document.createElement("h6");
+      problemOutputIndex.appendChild(document.createTextNode("出力"));
+      problemState.appendChild(problemOutputIndex);
+      const problemOutput = document.createElement("span");
+      problemOutput.appendChild(document.createTextNode(problemTextList[problemNumber].output));
+      problemState.appendChild(problemOutput);
+
+      // save selection into LocalStorage
+      localStorage.setItem("problemSelection", problemNumber);
+    });
+  }
+
+</script>
+
 <body>
-  
+  <h2>コード実行</h2>
+  <hr>
+  <div>
+    問題<select id="problemList"></select>
+    <button id="changeProblem">問題を読み込む</button>
+    言語<select id="languageList"></select>
+    <button id="runCode">実行</button>
+  </div>
+  <hr>
+  <div style="display: flex;">
+    <div id="source" class="problemText" style="height: 40em; width: 100%"></div>
+    <span id="problemState" class="problemText" style="width: 100%;"></span>
+    <span id="resultState" class="problemText" style="width: 100%;"></span>
+  </div>
 </body>
+
 </html>
