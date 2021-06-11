@@ -5,12 +5,22 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <script src="js/robotStage.js"></script>
-  <script src="js/sprite.js"></script>
+  <script src="js/RobotStage.js"></script>
+  <script src="js/Sprite.js"></script>
 </head>
 <script>
   addEventListener("load", () => {
-    const robotStage = new RobotStage(20, 20, 16);
+    const robotStage = new RobotStage(20, 20, 32);
+
+    const robot = new Sprite("materials/man_00.png");
+    robotStage.add(robot, 0, 0, true);
+
+    addEventListener("keydown", e => {
+      if(event.keyCode == 37) robotStage.movePlayer(-1, 0);
+      if(event.keyCode == 38) robotStage.movePlayer(0, -1);
+      if(event.keyCode == 39) robotStage.movePlayer(1, 0);
+      if(event.keyCode == 40) robotStage.movePlayer(0, 1);
+    });
   });
 </script>
 <body style="display: block;">
