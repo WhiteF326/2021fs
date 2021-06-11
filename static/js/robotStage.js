@@ -1,7 +1,7 @@
 'use strict';
 
 class RobotStage {
-  constructor(width, height, cellsize) {
+  constructor(width, height, cellsize, backsrc) {
     this.writeElement = document.getElementById("robo");
 
     this.width = width;
@@ -14,7 +14,10 @@ class RobotStage {
 
     this.pendingMoveX = 0;
     this.pendingMoveY = 0;
-    this.moveSpeedPerFrame = 4;
+    this.moveSpeedPerFrame = cellsize / 8;
+
+    this.backChip = new Image();
+    this.backChip.src = backsrc;
 
     this.stage = [];
     this.stageCanvas = document.createElement("canvas");
@@ -30,7 +33,6 @@ class RobotStage {
         this.stage[i].push(null);
       }
     }
-
     this.writeElement.appendChild(this.stageCanvas);
 
     this._mainLoop();
@@ -39,16 +41,29 @@ class RobotStage {
   _mainLoop() {
     const ct = document.getElementById("roboCanvas");
     const ctx = ct.getContext("2d");
-    ctx.fillStyle = "#000000";
-    ctx.fillRect(0, 0, ct.width, ct.height);
+    
+    for (let i = 0; i < this.height; i++) {
+      for (let j = 0; j < this.width; j++) {
+        ctx.drawImage(
+          this.backChip,
+          0, 0,
+          this.backChip.naturalWidth,
+          this.backChip.naturalHeight,
+          j * this.cellsize, i * this.cellsize,
+          this.cellsize, this.cellsize
+        );
+      }
+    }
 
     if(this.hasPlayer){
       // move direction at this time
       let mdx = 0, mdy = 0;
-      if(this.pendingMoveX > 0) mdx = 1 * this.moveSpeedPerFrame;
-      else if(this.pendingMoveX < 0) mdx = -1 * this.moveSpeedPerFrame;
-      if(this.pendingMoveY > 0) mdy = 1 * this.moveSpeedPerFrame;
-      else if(this.pendingMoveY < 0) mdy = -1 * this.moveSpeedPerFrame;
+      const xMaxMove = Math.min(this.moveSpeedPerFrame, Math.abs(this.pendingMoveX));
+      const yMaxMove = Math.min(this.moveSpeedPerFrame, Math.abs(this.pendingMoveY));
+      if(this.pendingMoveX > 0) mdx = 1 * xMaxMove;
+      else if(this.pendingMoveX < 0) mdx = -1 * xMaxMove;
+      if(this.pendingMoveY > 0) mdy = 1 * yMaxMove;
+      else if(this.pendingMoveY < 0) mdy = -1 * yMaxMove;
 
       this.stage[this.playerX][this.playerY].move(mdx, mdy);
       this.pendingMoveX -= mdx, this.pendingMoveY -= mdy;
