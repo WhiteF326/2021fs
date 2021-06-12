@@ -1,29 +1,88 @@
 <!DOCTYPE html>
 <html lang="ja>
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <script src="js/RobotStage.js"></script>
-  <script src="js/Sprite.js"></script>
+  <meta charset=" UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document</title>
+<script src="js/RobotStage.js"></script>
+<script src="js/Sprite.js"></script>
 </head>
-<script>
-  addEventListener("load", () => {
-    const robotStage = new RobotStage(20, 20, 32, "materials/back.png");
+<script type="module">
+  import { fetchJSON } from "https://code4sabae.github.io/js/fetchJSON.js";
 
-    const robot = new Sprite("materials/man_00.png");
-    robotStage.add(robot, 0, 0, true);
+  let fileLib = {};
 
-    addEventListener("keydown", e => {
-      if(event.keyCode == 37) robotStage.movePlayer(-1, 0);
-      if(event.keyCode == 38) robotStage.movePlayer(0, -1);
-      if(event.keyCode == 39) robotStage.movePlayer(1, 0);
-      if(event.keyCode == 40) robotStage.movePlayer(0, 1);
+  window.onload = async function () {
+    const fileList = await fetchJSON("api/stage/list", {});
+    fileList.forEach(async r => {
+      const fileData = await fetchJSON("api/stage/search", {name: r.name});
+      const fileListElement = document.createElement("option");
+      fileListElement.appendChild(document.createTextNode(fileData.stagename));
+      fileListElement.value = r.name;
+      fileLib[r.name] = fileData;
+      document.getElementById("fileSelector").appendChild(fileListElement);
     });
-  });
+
+    document.getElementById("fileChange").addEventListener("click", () => {
+      // server connection
+      const writeStage = fileLib[document.getElementById("fileSelector").value];
+      for(let i = 0; i < 2; i++){
+        let x = [];
+        for(let c = 0; c < writeStage.width; c++){
+          x[c] = [];
+          for(let r = 0; r < writeStage.height; r++){
+            x[c][r] = writeStage.stage[r][writeStage.width - 1 - c];
+          }
+        }
+        writeStage.stage = x;
+      }
+
+      const robotStage = new RobotStage(writeStage.width, writeStage.height, 64, "materials/back.png");
+
+      for(let i = 0; i < writeStage.width; i++){
+        for(let j = 0; j < writeStage.height; j++){
+          switch(writeStage.stage[i][j]){
+            case 0:
+              // wall
+              const wall = new Sprite("materials/wall.png", "Wall");
+              robotStage.add(wall, i, j);
+              break;
+            case 1:
+              // floor
+              break;
+            case 2:
+              // player
+              const robot = new Sprite("materials/man_00.png", "Player");
+              robotStage.add(robot, i, j);
+              break;
+            case 3:
+              // goal
+              const goal = new Sprite("materials/goal.png", "Goal");
+              robotStage.add(goal, i, j);
+              break;
+            default:
+              // none
+              break;
+          }
+        }
+      }
+      
+
+      addEventListener("keydown", e => {
+        if (event.keyCode == 37) robotStage.movePlayer(-1, 0);
+        if (event.keyCode == 38) robotStage.movePlayer(0, -1);
+        if (event.keyCode == 39) robotStage.movePlayer(1, 0);
+        if (event.keyCode == 40) robotStage.movePlayer(0, 1);
+      });
+    });
+  }
 </script>
+
 <body style="display: block;">
   <div id="robo"></div>
+  <select id="fileSelector"></select>
+  <button type="file" accept=".json" id="fileChange">select</button>
 </body>
+
 </html>

@@ -47,8 +47,7 @@ class RobotStage {
         ctx.drawImage(
           this.backChip,
           0, 0,
-          this.backChip.naturalWidth,
-          this.backChip.naturalHeight,
+          this.backChip.naturalWidth, this.backChip.naturalHeight,
           j * this.cellsize, i * this.cellsize,
           this.cellsize, this.cellsize
         );
@@ -72,7 +71,7 @@ class RobotStage {
     for(let i = 0; i < this.height; i++){
       for(let j = 0; j < this.width; j++){
         if(this.stage[i][j]){
-          this.stage[i][j].render(ct, this.cellsize, this.cellsize);
+          this.stage[i][j].render(ct, this.cellsize);
         }
       }
     }
@@ -80,9 +79,11 @@ class RobotStage {
     requestAnimationFrame(this._mainLoop.bind(this));
   }
 
-  add(obj, x, y, isPlayer){
+  add(obj, x, y){
+    obj.move(x * this.cellsize, y * this.cellsize);
     this.stage[x][y] = obj;
-    if(isPlayer){
+    
+    if(obj.gettype() == "Player"){
       this.playerX = x, this.playerY = y;
       this.hasPlayer = true;
     }
@@ -93,13 +94,27 @@ class RobotStage {
     const ty = this.playerY + vy;
     if(tx >= 0 && tx < this.width && ty >= 0 && ty < this.height){
       //  move player
-      this.pendingMoveX += vx * this.cellsize;
-      this.pendingMoveY += vy * this.cellsize;
-      const tmp = this.stage[this.playerX][this.playerY];
-      this.stage[this.playerX][this.playerY] = this.stage[tx][ty];
-      this.stage[tx][ty] = tmp;
-      this.playerX = tx;
-      this.playerY = ty;
+      if(this.stage[tx][ty]){
+        if(this.stage[tx][ty].gettype() == "Goal"){
+          this.stage[tx][ty] = null;
+          this.pendingMoveX += vx * this.cellsize;
+          this.pendingMoveY += vy * this.cellsize;
+          const tmp = this.stage[this.playerX][this.playerY];
+          this.stage[this.playerX][this.playerY] = this.stage[tx][ty];
+          this.stage[tx][ty] = tmp;
+          this.playerX = tx;
+          this.playerY = ty;
+          alert("goal");
+        }
+      }else{
+        this.pendingMoveX += vx * this.cellsize;
+        this.pendingMoveY += vy * this.cellsize;
+        const tmp = this.stage[this.playerX][this.playerY];
+        this.stage[this.playerX][this.playerY] = this.stage[tx][ty];
+        this.stage[tx][ty] = tmp;
+        this.playerX = tx;
+        this.playerY = ty;
+      }
     }
   }
 }
