@@ -1,14 +1,35 @@
-const http = require("http");
+import { Server } from "https://js.sabae.cc/Server.js";
 
-const hostname="localhost";
-const port = 810;
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World\n');
-});
+class body extends Server {
+  async api(path, prm){
+    console.log(path);
+    let retobj = null;
+    switch(path.split("/")[2]){
+      case "stage":
+        switch(path.split("/")[3]){
+          case "list":
+            retobj = [];
+            for await (const dirEntry of Deno.readDir("stages")) {
+              retobj.push(dirEntry);
+            }
+            break;
+          
+          case "search":
+            retobj = await Deno.readTextFile("./stages/" + prm.name);
+            retobj = JSON.parse(retobj);
+            break;
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+          default:
+            break;
+        }
+        break;
+      
+      default:
+        break;
+    }
+    return retobj;
+  }
+}
+
+new body(893);
