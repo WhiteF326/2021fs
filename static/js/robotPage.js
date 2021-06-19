@@ -3,6 +3,10 @@ import { fetchJSON } from "https://code4sabae.github.io/js/fetchJSON.js";
 let fileLib = {};
 
 window.onload = async function () {
+  addEventListener("contextmenu", e => {
+    e.preventDefault();
+  });
+  
   const fileList = await fetchJSON("api/stage/list", {});
   fileList.forEach(async r => {
     const fileData = await fetchJSON("api/stage/search", { name: r.name });
@@ -81,8 +85,6 @@ window.onload = async function () {
       }
     });
 
-    addEventListener("contextmenu", e => {
-      e.preventDefault();
-    });
+    document.getElementById("inside").remove();
   });
 }
