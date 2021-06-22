@@ -1,16 +1,16 @@
 'use strict';
 
-class MapChip extends BasicSprite{
-  constructor(img, textureNo){
+class MapChip extends BasicSprite {
+  constructor(img, textureNo) {
     super(img);
     this.textureNo = textureNo;
   }
 
-  render(canvas, size){
-    super.render(canvas, size);
+  render(canvas, size) {
+    if (this.textureNo != 15) super.render(canvas, size);
   }
 
-  move(x, y){
-    super.render(x, y);
+  move(x, y) {
+    super.move(x, y);
   }
 }
