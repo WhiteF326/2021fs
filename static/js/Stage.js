@@ -1,5 +1,22 @@
 'use strict';
 
+function zfill(value, digit){
+  return (Array(digit).join("0") + value).slice(-digit);
+}
+
+function transpose(array) {
+  const ROW = array.length;
+  const COL = array[0].length;
+  const a = [];//new Array(COL);
+  for (let c=0; c<COL; c++) {
+    a[c] = [];//new Array(ROW);
+    for (let r=0; r<ROW; r++) {
+      a[c][r] = array[r][c];
+    }
+  }
+  return a;
+};
+
 class Stage {
   constructor(stageData, writeElementId) {
     this.writeElement = document.getElementById(writeElementId);
@@ -10,7 +27,7 @@ class Stage {
 
     this.stage = stageData.layer;
     this.layerAmount = stageData.layerAmount;
-    this.mapChip = "materials/" + stageData.mapChip;
+    this.mapChip = "materials/mapchip/";
 
     this.stageCanvas = document.createElement("canvas");
     this.stageCanvas.id = "stageCanvas";
@@ -21,13 +38,16 @@ class Stage {
 
     this.Sprites = [];
     for (let h = 0; h < this.layerAmount; h++) {
+      this.stage[h] = transpose(this.stage[h]);
       this.Sprites.push([]);
       for (let i = 0; i < this.height; i++) {
         this.Sprites[h].push([]);
         for (let j = 0; j < this.width; j++) {
-          const mc = new MapChip(this.mapChip, this.stage[h][i][j][0])
-          this.Sprites[h][i].push(mc);
-          mc.move(i * this.cellsize, j * this.cellsize);
+          if(this.stage[h][i][j][0] > 0){
+            const mc = new MapChip("materials/mapchip/" + zfill(this.stage[h][i][j][0], 4) + ".png", )
+            this.Sprites[h][i].push(mc);
+            mc.move(i * this.cellsize, j * this.cellsize);
+          }
         }
       }
     }
