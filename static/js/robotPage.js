@@ -64,11 +64,11 @@ window.onload = function () {
     // 盤面とプレイヤーのオブジェクト生成
     const robotStage = new RobotStage(writeStage.width, writeStage.height, 64, "materials/back.png");
     const player = new Sprite({
-      "down": "materials/knt_down.png",
-      "left": "materials/knt_left.png",
-      "right": "materials/knt_right.png",
-      "up": "materials/knt_up.png"
-    }, "Player", "up");
+      "d": "materials/knt_down.png",
+      "l": "materials/knt_left.png",
+      "r": "materials/knt_right.png",
+      "u": "materials/knt_up.png"
+    }, "Player", "u");
 
     // 盤面上にspriteを生成してrobotStageに渡す
     for (let i = 0; i < writeStage.width; i++) {
@@ -101,20 +101,16 @@ window.onload = function () {
     // キー入力時
     addEventListener("keydown", e => {
       if (e.code == "ArrowLeft") {
-        robotStage.movePlayer(-1, 0);
-        player.setvector("left");
+        robotStage.movePlayer(-1, 0, "l", 1);
       }
       if (e.code == "ArrowUp") {
-        robotStage.movePlayer(0, -1);
-        player.setvector("up");
+        robotStage.movePlayer(0, -1, "u", 1);
       }
       if (e.code == "ArrowRight") {
-        robotStage.movePlayer(1, 0);
-        player.setvector("right");
+        robotStage.movePlayer(1, 0, "r", 1);
       }
       if (e.code == "ArrowDown") {
-        robotStage.movePlayer(0, 1);
-        player.setvector("down");
+        robotStage.movePlayer(0, 1, "d", 1);
       }
     });
 
@@ -131,30 +127,25 @@ window.onload = function () {
     runbtn.addEventListener("click", () => {
       // evaluate code
       runcode.value.split("\n").forEach(line => {
-        console.log(line);
         if (line.startsWith("//move")) {
           let vec = line.split(" ")[1];
           let amt = Number(line.split(" ")[2]);
 
           switch (vec) {
             case "l":
-              robotStage.movePlayer(-amt, 0);
-              player.setvector("left");
+              robotStage.movePlayer(-1, 0, "l", amt);
               break;
 
             case "u":
-              robotStage.movePlayer(0, -amt);
-              player.setvector("up");
+              robotStage.movePlayer(0, -1, "u", amt);
               break;
 
             case "r":
-              robotStage.movePlayer(amt, 0);
-              player.setvector("right");
+              robotStage.movePlayer(1, 0, "r", amt);
               break;
 
             case "d":
-              robotStage.movePlayer(0, amt);
-              player.setvector("down");
+              robotStage.movePlayer(0, 1, "d", amt);
               break;
 
             default:

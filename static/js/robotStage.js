@@ -15,6 +15,9 @@ class RobotStage {
     this.pendingMove = [];
     this.moveSpeedPerFrame = cellsize / 8;
 
+    this.goalFlg = false;
+    this.goal = null;
+
     this.backChip = new Image();
     this.backChip.src = backsrc;
 
@@ -67,6 +70,13 @@ class RobotStage {
       this.pendingMove[0][0] -= mdx, this.pendingMove[0][1] -= mdy;
       if(!this.pendingMove[0][0] && !this.pendingMove[0][1]){
         this.pendingMove.shift();
+        if(!this.pendingMove.length && this.goalFlg){
+          alert("goal");
+          this.stage[this.goal[0]][this.goal[1]] = null;
+          this.goalFlg = false;
+        }
+      }else{
+        this.hasPlayer.setvector(this.pendingMove[0][2]);
       }
     }
 
@@ -87,33 +97,32 @@ class RobotStage {
     
     if(obj.gettype() == "Player"){
       this.playerX = x, this.playerY = y;
-      this.hasPlayer = true;
+      this.hasPlayer = obj;
     }
   }
 
-  movePlayer(vx, vy){
+  movePlayer(vx, vy, vect, amt){
     const tx = this.playerX + vx;
     const ty = this.playerY + vy;
     if(tx >= 0 && tx < this.width && ty >= 0 && ty < this.height){
       //  move player
-      if(this.stage[tx][ty]){
-        if(this.stage[tx][ty].gettype() == "Goal"){
-          this.stage[tx][ty] = null;
-          this.pendingMove.push([vx * this.cellsize, vy * this.cellsize]);
-          const tmp = this.stage[this.playerX][this.playerY];
-          this.stage[this.playerX][this.playerY] = this.stage[tx][ty];
-          this.stage[tx][ty] = tmp;
-          this.playerX = tx;
-          this.playerY = ty;
-          alert("goal");
+      if(!this.stage[tx][ty] || this.stage[tx][ty].gettype() == "Goal"){
+        for(let i = 0; i < amt; i++){
+          this.pendingMove.push([vx * this.cellsize, vy * this.cellsize, vect]);
         }
-      }else{
-        this.pendingMove.push([vx * this.cellsize, vy * this.cellsize]);
+        if(this.stage[tx][ty]){
+          if(this.stage[tx][ty].gettype() == "Goal"){
+            this.goalFlg = true;
+            this.goal = [this.playerX, this.playerY];
+          }
+        }
         const tmp = this.stage[this.playerX][this.playerY];
         this.stage[this.playerX][this.playerY] = this.stage[tx][ty];
         this.stage[tx][ty] = tmp;
         this.playerX = tx;
         this.playerY = ty;
+
+        console.log(this.stage);
       }
     }
   }
