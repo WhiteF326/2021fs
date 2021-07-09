@@ -12,8 +12,7 @@ class RobotStage {
     this.playerX = 0;
     this.playerY = 0;
 
-    this.pendingMoveX = 0;
-    this.pendingMoveY = 0;
+    this.pendingMove = [];
     this.moveSpeedPerFrame = cellsize / 8;
 
     this.backChip = new Image();
@@ -54,18 +53,21 @@ class RobotStage {
       }
     }
 
-    if(this.hasPlayer){
+    if(this.hasPlayer && this.pendingMove.length > 0){
       // move direction at this time
       let mdx = 0, mdy = 0;
-      const xMaxMove = Math.min(this.moveSpeedPerFrame, Math.abs(this.pendingMoveX));
-      const yMaxMove = Math.min(this.moveSpeedPerFrame, Math.abs(this.pendingMoveY));
-      if(this.pendingMoveX > 0) mdx = 1 * xMaxMove;
-      else if(this.pendingMoveX < 0) mdx = -1 * xMaxMove;
-      if(this.pendingMoveY > 0) mdy = 1 * yMaxMove;
-      else if(this.pendingMoveY < 0) mdy = -1 * yMaxMove;
+      const xMaxMove = Math.min(this.moveSpeedPerFrame, Math.abs(this.pendingMove[0][0]));
+      const yMaxMove = Math.min(this.moveSpeedPerFrame, Math.abs(this.pendingMove[0][1]));
+      if(this.pendingMove[0][0] > 0) mdx = 1 * xMaxMove;
+      else if(this.pendingMove[0][0] < 0) mdx = -1 * xMaxMove;
+      if(this.pendingMove[0][1] > 0) mdy = 1 * yMaxMove;
+      else if(this.pendingMove[0][1] < 0) mdy = -1 * yMaxMove;
 
       this.stage[this.playerX][this.playerY].move(mdx, mdy);
-      this.pendingMoveX -= mdx, this.pendingMoveY -= mdy;
+      this.pendingMove[0][0] -= mdx, this.pendingMove[0][1] -= mdy;
+      if(!this.pendingMove[0][0] && !this.pendingMove[0][1]){
+        this.pendingMove.shift();
+      }
     }
 
     for(let i = 0; i < this.height; i++){
@@ -97,8 +99,7 @@ class RobotStage {
       if(this.stage[tx][ty]){
         if(this.stage[tx][ty].gettype() == "Goal"){
           this.stage[tx][ty] = null;
-          this.pendingMoveX += vx * this.cellsize;
-          this.pendingMoveY += vy * this.cellsize;
+          this.pendingMove.push([vx * this.cellsize, vy * this.cellsize]);
           const tmp = this.stage[this.playerX][this.playerY];
           this.stage[this.playerX][this.playerY] = this.stage[tx][ty];
           this.stage[tx][ty] = tmp;
@@ -107,8 +108,7 @@ class RobotStage {
           alert("goal");
         }
       }else{
-        this.pendingMoveX += vx * this.cellsize;
-        this.pendingMoveY += vy * this.cellsize;
+        this.pendingMove.push([vx * this.cellsize, vy * this.cellsize]);
         const tmp = this.stage[this.playerX][this.playerY];
         this.stage[this.playerX][this.playerY] = this.stage[tx][ty];
         this.stage[tx][ty] = tmp;
