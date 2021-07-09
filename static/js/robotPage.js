@@ -1,36 +1,61 @@
-import { fetchJSON } from "https://code4sabae.github.io/js/fetchJSON.js";
+// 以下に問題を追加
+const problemList = {
+  0: {
+    "stagename": "test1",
+    "height": 9,
+    "width": 9,
+    "stage": [
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 1, 1, 2, 0, 3, 0, 1, 0],
+      [0, 1, 0, 0, 0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0, 1, 1, 1, 0],
+      [0, 1, 0, 1, 0, 0, 0, 1, 0],
+      [0, 1, 1, 1, 1, 1, 0, 1, 0],
+      [0, 1, 0, 0, 0, 0, 0, 1, 0],
+      [0, 1, 1, 1, 1, 1, 1, 1, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ]
+  }
+}
+/*
+  マップは0:壁 1:床 2:プレイヤー初期位置 3:ゴール
+  stagenameはリストボックスに表示される文字列
+  height, widthはマップデータの高さと幅
+    stageより小さい場合stageの一部が無視され、
+    stageより大きい場合エラーが出るので注意
+    正方形じゃないとバグるので修正予定
+*/
 
-let fileLib = {};
-
-window.onload = async function () {
+window.onload = function () {
+  // 右クリックを無効にする
   addEventListener("contextmenu", e => {
     e.preventDefault();
   });
-  
-  const fileList = await fetchJSON("api/stage/list", {});
-  fileList.forEach(async r => {
-    const fileData = await fetchJSON("api/stage/search", { name: r.name });
-    const fileListElement = document.createElement("option");
-    fileListElement.appendChild(document.createTextNode(fileData.stagename));
-    fileListElement.value = r.name;
-    fileLib[r.name] = fileData;
-    document.getElementById("fileSelector").appendChild(fileListElement);
-  });
 
+  // リストボックスに要素を追加
+  for (let key in problemList) {
+    probListElement = document.createElement("option");
+    probListElement.appendChild(document.createTextNode(problemList[key].stagename));
+    probListElement.value = key;
+    document.getElementById("fileSelector").appendChild(probListElement);
+  }
+
+  // ファイル選択ボタン押下
   document.getElementById("fileChange").addEventListener("click", () => {
-    // server connection
-    const writeStage = fileLib[document.getElementById("fileSelector").value];
-    for (let i = 0; i < 2; i++) {
-      let x = [];
-      for (let c = 0; c < writeStage.width; c++) {
-        x[c] = [];
-        for (let r = 0; r < writeStage.height; r++) {
-          x[c][r] = writeStage.stage[r][writeStage.width - 1 - c];
-        }
+    // マップ取得
+    const writeStage = problemList[document.getElementById("fileSelector").value];
+    // そのままだと反時計回りに90度回転して表示されるため、回転処理
+    // TODO マップが正方形じゃないと多分ここの処理でバグる
+    let x = [];
+    for (let c = 0; c < writeStage.width; c++) {
+      x[c] = [];
+      for (let r = 0; r < writeStage.height; r++) {
+        x[c][r] = writeStage.stage[r][writeStage.width - 1 - c];
       }
-      writeStage.stage = x;
     }
+    writeStage.stage = x;
 
+    // 盤面とプレイヤーのオブジェクト生成
     const robotStage = new RobotStage(writeStage.width, writeStage.height, 64, "materials/back.png");
     const player = new Sprite({
       "down": "materials/knt_down.png",
@@ -39,6 +64,7 @@ window.onload = async function () {
       "up": "materials/knt_up.png"
     }, "Player", "up");
 
+    // 盤面上にspriteを生成してrobotStageに渡す
     for (let i = 0; i < writeStage.width; i++) {
       for (let j = 0; j < writeStage.height; j++) {
         switch (writeStage.stage[i][j]) {
@@ -66,25 +92,70 @@ window.onload = async function () {
       }
     }
 
+    // キー入力時
     addEventListener("keydown", e => {
-      if (e.keyCode == 37) {
+      if (e.code == "ArrowLeft") {
         robotStage.movePlayer(-1, 0);
         player.setvector("left");
       }
-      if (e.keyCode == 38) {
+      if (e.code == "ArrowUp") {
         robotStage.movePlayer(0, -1);
         player.setvector("up");
       }
-      if (e.keyCode == 39) {
+      if (e.code == "ArrowRight") {
         robotStage.movePlayer(1, 0);
         player.setvector("right");
       }
-      if (e.keyCode == 40) {
+      if (e.code == "ArrowDown") {
         robotStage.movePlayer(0, 1);
         player.setvector("down");
       }
     });
 
+    // ファイル選択ボタンを削除
     document.getElementById("inside").remove();
+
+    // コード実行領域を作成
+    const runcode = document.createElement("textarea");
+    runcode.id = "runcode";
+    document.body.appendChild(runcode);
+    const runbtn = document.createElement("button");
+    runbtn.appendChild(document.createTextNode("実行"));
+    document.body.appendChild(runbtn);
+    runbtn.addEventListener("click", () => {
+      // evaluate code
+      runcode.value.split("\n").forEach(line => {
+        console.log(line);
+        if (line.startsWith("//move")) {
+          let vec = line.split(" ")[1];
+          let amt = Number(line.split(" ")[2]);
+
+          switch (vec) {
+            case "l":
+              robotStage.movePlayer(-amt, 0);
+              player.setvector("left");
+              break;
+
+            case "u":
+              robotStage.movePlayer(0, -amt);
+              player.setvector("up");
+              break;
+
+            case "r":
+              robotStage.movePlayer(amt, 0);
+              player.setvector("right");
+              break;
+
+            case "d":
+              robotStage.movePlayer(0, amt);
+              player.setvector("down");
+              break;
+
+            default:
+              break;
+          }
+        }
+      });
+    });
   });
 }
